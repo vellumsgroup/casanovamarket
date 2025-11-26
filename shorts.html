@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Tienda de Jonathan</title>
+  <style>
+    :root{
+      --bg:#0a0a0a;
+      --card:#111;
+      --accent:#14ff62;
+      --text:#e5e5e5;
+      --muted:#7f7f7f;
+      --border:#1f1f1f;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Consolas,Monaco,monospace;background:var(--bg);color:var(--text)}
+    header{background:#000;border-bottom:1px solid var(--accent);padding:26px 20px;text-align:center}
+    header h1{margin:0;font-size:24px;color:var(--accent);text-shadow:0 0 10px var(--accent)}
+    header p{margin:8px 0 0;color:var(--muted);font-size:13px}
+
+    .container{max-width:1200px;margin:28px auto;padding:0 16px}
+    .section-title{font-size:17px;color:var(--accent);font-weight:700;margin:35px 0 12px;text-shadow:0 0 6px rgba(20,255,98,.5);}
+
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:22px}
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:10px;
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      height:380px;
+      box-shadow:0 0 14px rgba(20,255,98,0.05);
+      position:relative;
+    }
+
+    .card img{
+      width:100%;
+      height:200px;
+      object-fit:cover;
+      filter:grayscale(.3);
+    }
+
+    .card.sold img{
+      filter:grayscale(1) brightness(0.4);
+    }
+
+    .card-body{padding:14px;display:flex;flex-direction:column;flex:1}
+    .title{margin:0 0 8px;font-size:15px;color:var(--accent);font-weight:700;text-shadow:0 0 6px rgba(20,255,98,.4)}
+    .price{color:var(--muted);margin-bottom:12px;font-size:14px}
+    .actions{margin-top:auto;display:flex;gap:10px}
+
+    .btn{flex:1;padding:10px 12px;border-radius:6px;border:1px solid var(--border);cursor:pointer;font-family:Consolas;font-size:13px;font-weight:700;transition:0.15s}
+    .btn-cart{background:#101010;color:var(--muted)}
+    .btn-cart:hover{border-color:var(--accent);color:var(--accent)}
+    .btn-whatsapp{background:#000;border-color:var(--accent);color:var(--accent)}
+    .btn-whatsapp:hover{background:var(--accent);color:#000;text-shadow:0 0 6px #000}
+
+    .sold-tag{
+      background:#c00;
+      color:white;
+      font-weight:700;
+      padding:8px 0;
+      width:100%;
+      text-align:center;
+      border-radius:6px;
+      border:1px solid #900;
+    }
+
+    footer{text-align:center;color:var(--muted);font-size:13px;margin:26px 0}
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>[ Casanova Enterprises, LLC ]</h1>
+  <p>Contacto directo, entregas a domicilio — más información por WhatsApp Jonathan Casanova</p>
+</header>
+
+<main class="container">
+
+  <!-- SECCIÓN 1: PRODUCTOS DISPONIBLES -->
+  <div class="section-title">PRODUCTOS DISPONIBLES</div>
+  <section class="grid" id="availableProducts"></section>
+
+  <!-- SECCIÓN 2: PRODUCTOS VENDIDOS -->
+  <div class="section-title">PRODUCTOS VENDIDOS</div>
+  <section class="grid" id="soldProducts"></section>
+
+</main>
+
+<footer>
+  WhatsApp: <strong id="waNumber" style="color:var(--accent)"></strong>
+</footer>
+
+<script>
+const WHATSAPP_NUMBER = '528112381454';
+const MESSAGE_PREFIX = 'Consulta anónima — Estoy interesado en:';
+
+const PRODUCTS = [
+  {id:1,name:'Tetrodotoxin Poison',price:'$35,000 MXN',img:'11012344244_2a9f30e88c_z.jpg'},
+  {id:2,name:'MDMA CRYSTAL',price:'$5,000 MXN',img:'MDMA-crystals-1.jpg'},
+  {id:3,name:'Green Xanax',price:'$2,500 MXN',img:'GreenXanax.jpg'},
+  {id:4,name:'Ak47 Usado',price:'$11,999 MXN',img:'ak47-2.jpg'},
+  {id:5,name:'BIO Cocaine',price:'$6,500',img:'BIO-Cocaine.jpg',sold:true},
+];
+
+function formatDisplayNumber(){return '+52 81 1238 1454'}
+document.getElementById('waNumber').textContent = formatDisplayNumber();
+
+function createProductCard(p){
+  const card=document.createElement('article');
+  card.className='card';
+  if(p.sold) card.classList.add('sold');
+
+  const img=document.createElement('img');
+  img.src=p.img;
+
+  const body=document.createElement('div');
+  body.className='card-body';
+
+  const title=document.createElement('h3');
+  title.className='title';
+  title.textContent=p.name;
+
+  const price=document.createElement('div');
+  price.className='price';
+  price.textContent=p.price;
+
+  const actions=document.createElement('div');
+  actions.className='actions';
+
+  if(p.sold){
+    const soldTag=document.createElement('div');
+    soldTag.className='sold-tag';
+    soldTag.textContent='VENDIDO';
+    actions.append(soldTag);
+  } else {
+    const btnCart=document.createElement('button');
+    btnCart.className='btn btn-cart';
+    btnCart.textContent='Añadir';
+
+    const btnWa=document.createElement('button');
+    btnWa.className='btn btn-whatsapp';
+    btnWa.textContent='WhatsApp';
+    btnWa.onclick=()=>sendWhatsApp(p);
+
+    actions.append(btnCart,btnWa);
+  }
+
+  body.append(title,price,actions);
+  card.append(img,body);
+  return card;
+}
+
+function sendWhatsApp(p){
+  const t=`${MESSAGE_PREFIX} ${p.name} (${p.price})`;
+  window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(t)}`,'_blank');
+}
+
+// Renderizado
+const availableEl = document.getElementById('availableProducts');
+const soldEl = document.getElementById('soldProducts');
+
+function render(){
+  availableEl.innerHTML='';
+  soldEl.innerHTML='';
+
+  PRODUCTS.forEach(p=>{
+    const card = createProductCard(p);
+    if(p.sold) soldEl.appendChild(card);
+    else availableEl.appendChild(card);
+  });
+}
+
+render();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cuenta Anónima</title>
+<link rel="icon" type="image/png" href="icon.png">
+
+<style>
+    :root{
+        --bg:#0a0a0a;
+        --card:#111;
+        --accent:#14ff62;
+        --text:#e5e5e5;
+        --muted:#7f7f7f;
+        --border:#1f1f1f;
+    }
+
+    *{margin:0;padding:0;box-sizing:border-box}
+
+    body{
+        background:var(--bg);
+        font-family:Consolas,Monaco,monospace;
+        color:var(--text);
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        height:100vh;
+    }
+
+    .box{
+        width:350px;
+        background:var(--card);
+        padding:28px;
+        border-radius:10px;
+        border:1px solid var(--border);
+        box-shadow:0 0 20px rgba(20,255,98,0.05);
+    }
+
+    h1{
+        text-align:center;
+        color:var(--accent);
+        margin-bottom:20px;
+        text-shadow:0 0 6px rgba(20,255,98,.4);
+        font-size:22px;
+        letter-spacing:1px;
+    }
+
+    label{
+        font-size:14px;
+        color:var(--accent);
+        margin-bottom:6px;
+        display:block;
+    }
+
+    input{
+        width:100%;
+        padding:12px;
+        background:#0f0f0f;
+        border:1px solid var(--border);
+        border-radius:6px;
+        color:var(--text);
+        font-size:14px;
+        margin-bottom:18px;
+    }
+
+    input::placeholder{color:var(--muted);}
+
+    button{
+        width:100%;
+        padding:12px;
+        background:var(--accent);
+        color:#000;
+        border:none;
+        border-radius:6px;
+        font-size:15px;
+        font-weight:700;
+        cursor:pointer;
+        transition:.15s;
+    }
+
+    button:hover{
+        background:#1fff6c;
+        box-shadow:0 0 10px rgba(20,255,98,0.4);
+    }
+
+    .foot{
+        text-align:center;
+        margin-top:18px;
+        font-size:12px;
+        color:var(--muted);
+    }
+</style>
+</head>
+<body>
+
+<script>
+// Si ya existe usuario logueado → redirige
+if(localStorage.getItem("user")){
+    window.location.href="shorts.html";
+}
+</script>
+
+<div class="box">
+    <h1>[ ACCESO SEGURO ]</h1>
+
+    <form id="registerForm">
+        <label>Usuario / Correo</label>
+        <input type="text" id="username" placeholder="usuario@anon.me">
+
+        <label>Contraseña</label>
+        <input type="password" id="password" placeholder="********">
+
+        <button type="submit">Entrar</button>
+    </form>
+
+    <div class="foot">Sesión cifrada localmente</div>
+</div>
+
+<script>
+// Registro anónimo
+document.getElementById("registerForm").addEventListener("submit", function(e){
+    e.preventDefault();
+
+    let user = document.getElementById("username").value.trim();
+    let pass = document.getElementById("password").value.trim();
+
+    if(user === "" || pass === ""){
+        alert("Completa todos los campos.");
+        return;
+    }
+
+    const data = {username:user, password:pass};
+
+    localStorage.setItem("user", JSON.stringify(data));
+
+    // Redirigir
+    window.location.href="shorts.html";
+});
+</script>
+
+</body>
+</html>
